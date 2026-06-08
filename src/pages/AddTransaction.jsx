@@ -124,14 +124,6 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
   const mainColor = type === 'income' ? '#34c759' : '#ff2d55';
   const typeLabel = type === 'income' ? 'Receita' : 'Despesa';
 
-  const dateInputRef = useRef(null);
-
-  const handleOpenCalendar = () => {
-    if (dateInputRef.current) {
-      dateInputRef.current.showPicker(); // Aciona o calendário nativo
-    }
-  };
-
   return (
     <motion.div 
       initial={{ y: '100%' }}
@@ -140,15 +132,6 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
       className="transaction-modal"
     >
-      {/* Input de Data Escondido */}
-      <input 
-        type="date" 
-        ref={dateInputRef}
-        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
-        onChange={(e) => setDateType(e.target.value)}
-        value={dateType.includes('-') ? dateType : new Date().toISOString().split('T')[0]}
-      />
-
       {/* Header */}
       <header className="transaction-header">
         <button className="btn-cancel" onClick={onClose}>Cancelar</button>
@@ -204,11 +187,25 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
               >Ontem</button>
               <button 
                 className={`date-pill ${dateType.includes('-') ? `active ${type}` : ''}`}
-                onClick={handleOpenCalendar}
+                style={{ position: 'relative' }}
               >
                 {dateType.includes('-') 
                   ? new Date(dateType + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) 
                   : 'Outros'}
+                <input 
+                  type="date" 
+                  onChange={(e) => setDateType(e.target.value)}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    opacity: 0,
+                    cursor: 'pointer'
+                  }}
+                  value={dateType.includes('-') ? dateType : new Date().toISOString().split('T')[0]}
+                />
               </button>
             </div>
           </div>
