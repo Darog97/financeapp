@@ -132,15 +132,6 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
       className="transaction-modal"
     >
-      {/* Input de Data Escondido */}
-      <input 
-        type="date" 
-        ref={dateInputRef}
-        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
-        onChange={(e) => setDateType(e.target.value)}
-        value={dateType.includes('-') ? dateType : new Date().toISOString().split('T')[0]}
-      />
-
       {/* Header */}
       <header className="transaction-header">
         <button className="btn-cancel" onClick={onClose}>Cancelar</button>
