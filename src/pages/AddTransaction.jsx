@@ -27,6 +27,10 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
   const [selectedCard, setSelectedCard] = useState(null);
   const [categories, setCategories] = useState([]);
   const [cards, setCards] = useState([]);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [installments, setInstallments] = useState(1);
+  const [recurrencePeriod, setRecurrencePeriod] = useState('monthly');
+  const [showAdvanceOptions, setShowAdvanceOptions] = useState(false);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -85,15 +89,30 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
     }
 
     try {
-      await addTransaction({
-        value: numericValue,
-        type,
-        category_id: selectedCategory.id,
-        card_id: selectedCard?.id || null,
-        date: finalDate.toISOString().split('T')[0],
-        description: note,
-      });
-      
+      const numInstallments = parseInt(installments) || 1;
+      const promises = [];
+
+      for (let i = 0; i < numInstallments; i++) {
+        let entryDate = new Date(finalDate);
+        // Adiciona meses para as parcelas subsequentes
+        entryDate.setMonth(entryDate.getMonth() + i);
+
+        promises.push(addTransaction({
+          value: numInstallments > 1 ? numericValue / numInstallments : numericValue,
+          type,
+          category_id: selectedCategory.id,
+          card_id: selectedCard?.id || null,
+          date: entryDate.toISOString().split('T')[0],
+          description: numInstallments > 1 ? `${note} (${i + 1}/${numInstallments})` : note,
+          status: isPaid ? 'completed' : 'pending',
+          is_recurring: isRecurring,
+          installments_total: numInstallments,
+          installment_number: i + 1,
+          recurrence_period: isRecurring ? recurrencePeriod : null
+        }));
+      }
+
+      await Promise.all(promises);
       onClose();
     } catch (error) {
       alert('Erro ao salvar: ' + error.message);
