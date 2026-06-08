@@ -118,26 +118,84 @@ h2 { font-weight: 600; font-size: 20px; margin-bottom: 16px; }
   font-weight: 500;
 }
 
+.add-button-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1001;
+}
+
 .add-button {
   background: var(--accent);
   color: white;
-  width: 48px;
-  height: 48px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 122, 255, 0.4);
   border: none;
   cursor: pointer;
-  margin-top: -20px;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  z-index: 1001;
+  margin-top: -24px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.add-button:active {
-  transform: scale(0.85);
+.add-button.open {
+  background: #5856d6;
+  box-shadow: 0 4px 16px rgba(88, 86, 214, 0.4);
 }
+
+.menu-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+}
+
+.quick-menu-item {
+  position: absolute;
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  z-index: 1002;
+}
+
+.quick-menu-item .icon-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #1c1c1e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s;
+}
+
+.quick-menu-item:active .icon-circle {
+  transform: scale(0.9);
+}
+
+.quick-menu-item span {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.quick-menu-item.income .icon-circle { color: var(--income); }
+.quick-menu-item.expense .icon-circle { color: var(--expense); }
 
 /* Utils */
 .flex-between { display: flex; justify-content: space-between; align-items: center; }

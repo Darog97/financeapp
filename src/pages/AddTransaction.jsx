@@ -4,9 +4,9 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { X, Check, Calendar, Type } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const AddTransaction = ({ onClose }) => {
+const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
   const [value, setValue] = useState('');
-  const [type, setType] = useState('expense');
+  const [type, setType] = useState(initialType);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [note, setNote] = useState('');
   const inputRef = useRef(null);

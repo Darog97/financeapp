@@ -20,6 +20,8 @@ import Settings from './pages/Settings';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showQuickMenu, setShowQuickMenu] = useState(false);
+  const [addType, setAddType] = useState('expense');
   const [showAdd, setShowAdd] = useState(false);
 
   const renderPage = () => {
@@ -30,6 +32,12 @@ function App() {
       case 'settings': return <Settings />;
       default: return <Dashboard />;
     }
+  };
+
+  const handleOpenAdd = (type) => {
+    setAddType(type);
+    setShowQuickMenu(false);
+    setShowAdd(true);
   };
 
   return (
@@ -46,25 +54,76 @@ function App() {
         </motion.div>
       </AnimatePresence>
 
+      {/* Quick Menu Backdrop */}
+      <AnimatePresence>
+        {showQuickMenu && (
+          <motion.div 
+            className="menu-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowQuickMenu(false)}
+          />
+        )}
+      </AnimatePresence>
+
       <nav className="tab-bar glass">
         <button 
           className={`tab-item ${activeTab === 'dashboard' ? 'active' : ''}`}
           onClick={() => setActiveTab('dashboard')}
         >
           <LayoutDashboard size={24} />
-          <span>Dashboard</span>
+          <span>Principal</span>
         </button>
         <button 
           className={`tab-item ${activeTab === 'transactions' ? 'active' : ''}`}
           onClick={() => setActiveTab('transactions')}
         >
           <History size={24} />
-          <span>Histórico</span>
+          <span>Transações</span>
         </button>
         
-        <button className="add-button" onClick={() => setShowAdd(true)}>
-          <Plus size={28} />
-        </button>
+        <div className="add-button-container">
+          <AnimatePresence>
+            {showQuickMenu && (
+              <>
+                <motion.button
+                  className="quick-menu-item income"
+                  initial={{ y: 0, x: 0, opacity: 0, scale: 0 }}
+                  animate={{ y: -80, x: -60, opacity: 1, scale: 1 }}
+                  exit={{ y: 0, x: 0, opacity: 0, scale: 0 }}
+                  onClick={() => handleOpenAdd('income')}
+                >
+                  <div className="icon-circle"><ArrowUpCircle size={24} /></div>
+                  <span>Receita</span>
+                </motion.button>
+
+                <motion.button
+                  className="quick-menu-item expense"
+                  initial={{ y: 0, x: 0, opacity: 0, scale: 0 }}
+                  animate={{ y: -80, x: 60, opacity: 1, scale: 1 }}
+                  exit={{ y: 0, x: 0, opacity: 0, scale: 0 }}
+                  onClick={() => handleOpenAdd('expense')}
+                >
+                  <div className="icon-circle"><ArrowDownCircle size={24} /></div>
+                  <span>Despesa</span>
+                </motion.button>
+              </>
+            )}
+          </AnimatePresence>
+
+          <button 
+            className={`add-button ${showQuickMenu ? 'open' : ''}`} 
+            onClick={() => setShowQuickMenu(!showQuickMenu)}
+          >
+            <motion.div
+              animate={{ rotate: showQuickMenu ? 135 : 0 }}
+              transition={{ type: "spring", stiffness: 260, damping: 20 }}
+            >
+              <Plus size={28} />
+            </motion.div>
+          </button>
+        </div>
 
         <button 
           className={`tab-item ${activeTab === 'reports' ? 'active' : ''}`}
@@ -78,13 +137,16 @@ function App() {
           onClick={() => setActiveTab('settings')}
         >
           <SettingsIcon size={24} />
-          <span>Ajustes</span>
+          <span>Mais</span>
         </button>
       </nav>
 
       <AnimatePresence>
         {showAdd && (
-          <AddTransaction onClose={() => setShowAdd(false)} />
+          <AddTransaction 
+            type={addType} 
+            onClose={() => setShowAdd(false)} 
+          />
         )}
       </AnimatePresence>
     </div>
