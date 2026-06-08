@@ -54,6 +54,8 @@ const Settings = () => {
         <h1>Ajustes</h1>
       </header>
 
+      <CreditCardManager />
+
       <section style={{ marginBottom: '32px' }}>
         <h2 className="text-secondary" style={{ fontSize: '13px', textTransform: 'uppercase' }}>Dados</h2>
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
