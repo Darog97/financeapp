@@ -12,7 +12,8 @@ import {
   Wallet, 
   Image as ImageIcon,
   Heart,
-  Delete
+  Delete,
+  CreditCard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -24,10 +25,14 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
   const [dateType, setDateType] = useState('today');
   const [note, setNote] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCard, setSelectedCard] = useState(null);
+  const inputRef = useRef(null);
 
   const categories = useLiveQuery(() => 
     db.categories.where('type').equals(type).toArray()
   , [type]) || [];
+
+  const cards = useLiveQuery(() => db.cards.toArray()) || [];
 
   useEffect(() => {
     if (categories.length > 0 && !selectedCategory) {
@@ -70,6 +75,7 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
       value: numericValue,
       type,
       categoryId: selectedCategory.id,
+      cardId: selectedCard?.id || null,
       date: finalDate.toISOString(),
       note,
       status: isPaid ? 'completed' : 'pending',
@@ -175,6 +181,41 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
           </div>
           <ChevronRight size={20} color="#3a3a3c" />
         </div>
+
+        {/* Credit Card Selection (only for expenses) */}
+        {type === 'expense' && cards.length > 0 && (
+          <div className="form-row" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
+            <div className="form-row-left">
+              <CreditCard size={22} color="#8e8e93" />
+              <span style={{ color: 'white', fontSize: '14px' }}>Pagar com cartão?</span>
+            </div>
+            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', width: '100%', padding: '4px 0' }}>
+              <button 
+                onClick={() => setSelectedCard(null)}
+                style={{
+                  background: !selectedCard ? 'var(--accent)' : 'rgba(255,255,255,0.05)',
+                  color: 'white', border: 'none', padding: '6px 12px', borderRadius: '12px',
+                  whiteSpace: 'nowrap', fontSize: '12px'
+                }}
+              >
+                Dinheiro / Conta
+              </button>
+              {cards.map(card => (
+                <button 
+                  key={card.id}
+                  onClick={() => setSelectedCard(card)}
+                  style={{
+                    background: selectedCard?.id === card.id ? '#5856d6' : 'rgba(255,255,255,0.05)',
+                    color: 'white', border: 'none', padding: '6px 12px', borderRadius: '12px',
+                    whiteSpace: 'nowrap', fontSize: '12px'
+                  }}
+                >
+                  {card.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="form-row">
           <div className="form-row-left">
