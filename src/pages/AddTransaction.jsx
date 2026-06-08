@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { db } from '../db';
-import { useLiveQuery } from 'dexie-react-hooks';
 import { 
   X, 
   ChevronDown, 
@@ -16,6 +14,7 @@ import {
   CreditCard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { addTransaction, getCategories, getCards } from '../services/api';
 
 const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
   const [value, setValue] = useState('0');
@@ -26,19 +25,31 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
   const [note, setNote] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [cards, setCards] = useState([]);
   const inputRef = useRef(null);
 
-  const categories = useLiveQuery(() => 
-    db.categories.where('type').equals(type).toArray()
-  , [type]) || [];
-
-  const cards = useLiveQuery(() => db.cards.toArray()) || [];
-
   useEffect(() => {
-    if (categories.length > 0 && !selectedCategory) {
-      setSelectedCategory(categories[0]);
+    loadInitialData();
+  }, [type]);
+
+  const loadInitialData = async () => {
+    try {
+      const [cats, crds] = await Promise.all([
+        getCategories(),
+        getCards()
+      ]);
+      const filteredCats = cats.filter(c => c.type === type);
+      setCategories(filteredCats);
+      setCards(crds);
+      
+      if (filteredCats.length > 0) {
+        setSelectedCategory(filteredCats[0]);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados:', error);
     }
-  }, [categories]);
+  };
 
   const handleKeypadPress = (key) => {
     if (key === 'backspace') {
@@ -71,18 +82,20 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
       finalDate.setDate(finalDate.getDate() - 1);
     }
 
-    await db.transactions.add({
-      value: numericValue,
-      type,
-      categoryId: selectedCategory.id,
-      cardId: selectedCard?.id || null,
-      date: finalDate.toISOString(),
-      note,
-      status: isPaid ? 'completed' : 'pending',
-      createdAt: new Date()
-    });
-    
-    onClose();
+    try {
+      await addTransaction({
+        value: numericValue,
+        type,
+        category_id: selectedCategory.id,
+        card_id: selectedCard?.id || null,
+        date: finalDate.toISOString().split('T')[0],
+        description: note,
+      });
+      
+      onClose();
+    } catch (error) {
+      alert('Erro ao salvar: ' + error.message);
+    }
   };
 
   const mainColor = type === 'income' ? '#34c759' : '#ff2d55';

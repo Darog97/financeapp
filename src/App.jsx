@@ -18,11 +18,35 @@ import AddTransaction from './pages/AddTransaction';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 
+import { supabase } from './lib/supabase';
+import { Auth } from './components/Auth';
+
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showQuickMenu, setShowQuickMenu] = useState(false);
   const [addType, setAddType] = useState('expense');
   const [showAdd, setShowAdd] = useState(false);
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    // Verificar sessão atual
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    // Ouvir mudanças na autenticação
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (!session) {
+    return <Auth />;
+  }
 
   const renderPage = () => {
     switch (activeTab) {

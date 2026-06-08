@@ -1,32 +1,54 @@
-import React, { useState } from 'react';
-import { db } from '../db';
-import { useLiveQuery } from 'dexie-react-hooks';
+import React, { useState, useEffect } from 'react';
+import { getCards, addCard, deleteCard } from '../services/api';
 import { CreditCard, Plus, Trash2, X, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CreditCardManager = () => {
-  const cards = useLiveQuery(() => db.cards.toArray()) || [];
+  const [cards, setCards] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState('');
   const [newClosing, setNewClosing] = useState('');
   const [newDue, setNewDue] = useState('');
 
+  useEffect(() => {
+    loadCards();
+  }, []);
+
+  const loadCards = async () => {
+    try {
+      const data = await getCards();
+      setCards(data);
+    } catch (error) {
+      console.error('Erro ao carregar cartões:', error);
+    }
+  };
+
   const handleAdd = async () => {
     if (!newName || !newClosing || !newDue) return;
-    await db.cards.add({
-      name: newName,
-      closingDay: parseInt(newClosing),
-      dueDay: parseInt(newDue)
-    });
-    setNewName('');
-    setNewClosing('');
-    setNewDue('');
-    setShowAdd(false);
+    try {
+      await addCard({
+        name: newName,
+        closing_day: parseInt(newClosing),
+        due_day: parseInt(newDue)
+      });
+      loadCards();
+      setNewName('');
+      setNewClosing('');
+      setNewDue('');
+      setShowAdd(false);
+    } catch (error) {
+      alert('Erro ao cadastrar cartão');
+    }
   };
 
   const handleDelete = async (id) => {
     if (confirm('Deseja excluir este cartão?')) {
-      await db.cards.delete(id);
+      try {
+        await deleteCard(id);
+        setCards(cards.filter(c => c.id !== id));
+      } catch (error) {
+        alert('Erro ao excluir');
+      }
     }
   };
 
@@ -70,7 +92,7 @@ const CreditCardManager = () => {
               <div>
                 <div style={{ fontWeight: '600' }}>{card.name}</div>
                 <div className="text-secondary" style={{ fontSize: '12px' }}>
-                  Fecha dia {card.closingDay} • Vence dia {card.dueDay}
+                  Fecha dia {card.closing_day} • Vence dia {card.due_day}
                 </div>
               </div>
             </div>

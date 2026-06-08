@@ -1,15 +1,29 @@
-import React, { useState } from 'react';
-import { db } from '../db';
-import { useLiveQuery } from 'dexie-react-hooks';
+import React, { useState, useEffect } from 'react';
+import { getTransactions, deleteTransaction } from '../services/api';
 import { Search, Filter, Trash2, Wallet } from 'lucide-react';
 
 const Transactions = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const transactions = useLiveQuery(() => db.transactions.toArray()) || [];
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadTransactions();
+  }, []);
+
+  const loadTransactions = async () => {
+    try {
+      const data = await getTransactions();
+      setTransactions(data);
+    } catch (error) {
+      console.error('Erro:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filtered = transactions
-    .filter(t => (t.note || '').toLowerCase().includes(searchTerm.toLowerCase()))
-    .reverse();
+    .filter(t => (t.description || '').toLowerCase().includes(searchTerm.toLowerCase()));
 
   const formatCurrency = (val) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -20,7 +34,12 @@ const Transactions = () => {
 
   const handleDelete = async (id) => {
     if (confirm('Deseja excluir este lançamento?')) {
-      await db.transactions.delete(id);
+      try {
+        await deleteTransaction(id);
+        setTransactions(transactions.filter(t => t.id !== id));
+      } catch (error) {
+        alert('Erro ao deletar');
+      }
     }
   };
 
@@ -61,7 +80,7 @@ const Transactions = () => {
                  <Wallet size={20} color={t.type === 'income' ? 'var(--income)' : 'var(--expense)'} />
               </div>
               <div>
-                <div style={{ fontWeight: '600' }}>{t.note || 'Sem descrição'}</div>
+                <div style={{ fontWeight: '600' }}>{t.description || 'Sem descrição'}</div>
                 <div className="text-secondary" style={{ fontSize: '13px' }}>
                   {new Date(t.date).toLocaleDateString('pt-BR')}
                 </div>

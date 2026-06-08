@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { db } from '../db';
-import { useLiveQuery } from 'dexie-react-hooks';
+import React, { useState, useEffect } from 'react';
+import { getTransactions } from '../services/api';
 import { 
   ArrowUp, 
   ArrowDown, 
@@ -14,7 +13,23 @@ import {
 
 const Dashboard = () => {
   const [showBalance, setShowBalance] = useState(true);
-  const transactions = useLiveQuery(() => db.transactions.toArray()) || [];
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const data = await getTransactions();
+      setTransactions(data);
+    } catch (error) {
+      console.error('Erro ao carregar dashboard:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   
   const now = new Date();
   const currentMonthName = now.toLocaleString('pt-BR', { month: 'long' });
@@ -99,7 +114,7 @@ const Dashboard = () => {
                  <Wallet size={20} color={t.type === 'income' ? '#34c759' : '#ff3b30'} />
               </div>
               <div>
-                <div style={{ fontWeight: '600', fontSize: '15px' }}>{t.note || 'Sem descrição'}</div>
+                <div style={{ fontWeight: '600', fontSize: '15px' }}>{t.description || 'Sem descrição'}</div>
                 <div className="text-secondary" style={{ fontSize: '12px' }}>{new Date(t.date).toLocaleDateString('pt-BR')}</div>
               </div>
             </div>
