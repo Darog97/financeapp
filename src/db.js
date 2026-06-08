@@ -2,9 +2,10 @@ import Dexie from 'dexie';
 
 export const db = new Dexie('FinanceDB');
 
-db.version(1).stores({
-  transactions: '++id, date, categoryId, type, value',
+db.version(2).stores({
+  transactions: '++id, date, categoryId, cardId, type, value',
   categories: '++id, name, type, icon, color',
+  cards: '++id, name, closingDay, dueDay',
   settings: 'key'
 });
 

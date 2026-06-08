@@ -1,6 +1,7 @@
 import React from 'react';
 import { db } from '../db';
 import { Download, Upload, Trash2, Smartphone, ShieldCheck } from 'lucide-react';
+import CreditCardManager from '../components/CreditCardManager';
 
 const Settings = () => {
   
