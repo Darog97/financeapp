@@ -327,3 +327,170 @@ h2 { font-weight: 600; font-size: 20px; margin-bottom: 16px; }
   font-size: 16px;
   display: block;
 }
+
+/* Transaction Form Premium Styles */
+.transaction-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #000;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+}
+
+.transaction-header {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-cancel {
+  background: #1c1c1e;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.type-selector-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: 25px;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+}
+
+.value-input-section {
+  padding: 24px;
+  color: white;
+}
+
+.value-label {
+  font-size: 13px;
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+
+.value-input-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.value-display {
+  font-size: 42px;
+  font-weight: 700;
+}
+
+.currency-selector {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.form-body-card {
+  background: #1c1c1e;
+  border-radius: 30px 30px 0 0;
+  flex: 1;
+  padding: 24px;
+  margin-top: 10px;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.05);
+}
+
+.form-row-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.date-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.date-pill {
+  background: #2c2c2e;
+  border: none;
+  color: #8e8e93;
+  padding: 6px 16px;
+  border-radius: 15px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.date-pill.active.income { background: var(--income); color: white; }
+.date-pill.active.expense { background: var(--expense); color: white; }
+
+/* Custom Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #3a3a3c;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 22px; width: 22px;
+  left: 3px; bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider.income { background-color: var(--income); }
+input:checked + .slider.expense { background-color: var(--expense); }
+input:checked + .slider:before { transform: translateX(22px); }
+
+.category-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 14px;
+}
+
+.save-button {
+  width: 100%;
+  padding: 16px;
+  border-radius: 25px;
+  border: none;
+  color: white;
+  font-weight: 700;
+  font-size: 18px;
+  margin-top: auto;
+  cursor: pointer;
+}
