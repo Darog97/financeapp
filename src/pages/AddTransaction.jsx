@@ -268,6 +268,86 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
           <ChevronRight size={20} color="#3a3a3c" />
         </div>
 
+        {/* Opções Avançadas de Parcelamento/Recorrência */}
+        <div 
+          onClick={() => setShowAdvanceOptions(!showAdvanceOptions)}
+          style={{ 
+            padding: '12px 16px', 
+            background: 'rgba(255,255,255,0.03)', 
+            borderRadius: '16px', 
+            marginTop: '12px',
+            cursor: 'pointer',
+            border: showAdvanceOptions ? '1px solid rgba(255,255,255,0.1)' : 'none'
+          }}
+        >
+          <div className="flex-between">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ background: 'rgba(88, 86, 214, 0.1)', padding: '6px', borderRadius: '8px' }}>
+                <CheckCircle2 size={18} color="#5856d6" />
+              </div>
+              <span style={{ color: 'white', fontSize: '14px', fontWeight: '500' }}>Repetir ou Parcelar?</span>
+            </div>
+            <ChevronDown size={18} color="#8e8e93" style={{ transform: showAdvanceOptions ? 'rotate(180deg)' : 'none', transition: '0.3s' }} />
+          </div>
+
+          <AnimatePresence>
+            {showAdvanceOptions && (
+              <motion.div 
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                style={{ overflow: 'hidden' }}
+              >
+                <div style={{ padding: '16px 0 8px 0', display: 'flex', flexDirection: 'column', gap: '16px', borderTop: '1px solid rgba(255,255,255,0.05)', marginTop: '12px' }}>
+                  
+                  {/* Parcelamento */}
+                  <div className="flex-between">
+                    <span style={{ color: '#8e8e93', fontSize: '14px' }}>Número de Parcelas</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                       <button 
+                        onClick={(e) => { e.stopPropagation(); setInstallments(Math.max(1, installments - 1))}}
+                        style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', cursor: 'pointer' }}
+                       >-</button>
+                       <span style={{ color: 'white', fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{installments}</span>
+                       <button 
+                        onClick={(e) => { e.stopPropagation(); setInstallments(installments + 1)}}
+                        style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', cursor: 'pointer' }}
+                       >+</button>
+                    </div>
+                  </div>
+
+                  {/* Recorrência Fixa */}
+                  <div className="flex-between">
+                    <span style={{ color: '#8e8e93', fontSize: '14px' }}>Recorrência Fixa?</span>
+                    <label className="switch" style={{ transform: 'scale(0.8)' }} onClick={e => e.stopPropagation()}>
+                      <input type="checkbox" checked={isRecurring} onChange={() => setIsRecurring(!isRecurring)} />
+                      <span className={`slider ${type}`}></span>
+                    </label>
+                  </div>
+
+                  {isRecurring && (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      {['weekly', 'monthly', 'yearly'].map(p => (
+                        <button
+                          key={p}
+                          onClick={(e) => { e.stopPropagation(); setRecurrencePeriod(p) }}
+                          style={{
+                            flex: 1, padding: '8px', fontSize: '12px', borderRadius: '10px',
+                            background: recurrencePeriod === p ? 'var(--accent)' : 'rgba(255,255,255,0.05)',
+                            border: 'none', color: 'white', cursor: 'pointer'
+                          }}
+                        >
+                          {p === 'weekly' ? 'Semanal' : p === 'monthly' ? 'Mensal' : 'Anual'}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
         {/* Save Button */}
         <button 
           className="save-button" 
