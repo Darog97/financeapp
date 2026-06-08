@@ -80,6 +80,8 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
     let finalDate = new Date();
     if (dateType === 'yesterday') {
       finalDate.setDate(finalDate.getDate() - 1);
+    } else if (dateType.includes('-')) {
+      finalDate = new Date(dateType);
     }
 
     try {
@@ -97,6 +99,8 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
       alert('Erro ao salvar: ' + error.message);
     }
   };
+
+  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
 
   const mainColor = type === 'income' ? '#34c759' : '#ff2d55';
   const typeLabel = type === 'income' ? 'Receita' : 'Despesa';
@@ -164,8 +168,12 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
               >Ontem</button>
               <button 
                 className={`date-pill ${dateType === 'other' ? `active ${type}` : ''}`}
-                onClick={() => setDateType('other')}
-              >Outros</button>
+                onClick={() => {
+                  // Aqui poderíamos abrir um date picker nativo
+                  const d = prompt("Digite a data (AAAA-MM-DD):", new Date().toISOString().split('T')[0]);
+                  if (d) setDateType(d);
+                }}
+              >{dateType.includes('-') ? dateType : 'Outros'}</button>
             </div>
           </div>
         </div>
@@ -184,11 +192,12 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
           <Heart size={20} color="#8e8e93" />
         </div>
 
-        <div className="form-row">
+        {/* Categoria Clicável */}
+        <div className="form-row" onClick={() => setShowCategoryPicker(true)} style={{ cursor: 'pointer' }}>
           <div className="form-row-left">
             <Bookmark size={22} color="#8e8e93" />
-            <div className="category-badge" style={{ borderColor: mainColor }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: mainColor }}></div>
+            <div className="category-badge" style={{ borderColor: selectedCategory?.color || mainColor }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: selectedCategory?.color || mainColor }}></div>
               <span style={{ color: 'white' }}>{selectedCategory?.name || 'Selecionar categoria'}</span>
             </div>
           </div>
@@ -233,9 +242,8 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
         <div className="form-row">
           <div className="form-row-left">
             <Wallet size={22} color="#8e8e93" />
-            <div className="category-badge" style={{ borderColor: '#ff9500' }}>
-              <div style={{ width: '12px', height: '12px', borderRadius: '4px', background: '#ff9500', fontSize: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>i</div>
-              <span style={{ color: 'white' }}>Inter</span>
+            <div className="category-badge" style={{ borderColor: '#8e8e93' }}>
+              <span style={{ color: 'white' }}>Principal (Padrão)</span>
             </div>
           </div>
           <ChevronRight size={20} color="#3a3a3c" />
@@ -295,6 +303,71 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
                 >
                   Pronto
                 </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* Category Picker Sheet */}
+      <AnimatePresence>
+        {showCategoryPicker && (
+          <motion.div 
+            className="keypad-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowCategoryPicker(false)}
+            style={{ zIndex: 4000 }}
+          >
+            <motion.div 
+              className="keypad-container"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              onClick={e => e.stopPropagation()}
+              style={{ padding: '24px', maxHeight: '70vh', overflowY: 'auto' }}
+            >
+              <div className="flex-between" style={{ marginBottom: '20px' }}>
+                <h3 style={{ margin: 0, color: 'white' }}>Selecionar Categoria</h3>
+                <button onClick={() => setShowCategoryPicker(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)' }}>
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                {categories.map(cat => (
+                  <button
+                    key={cat.id}
+                    onClick={() => {
+                      setSelectedCategory(cat);
+                      setShowCategoryPicker(false);
+                    }}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '16px 8px',
+                      borderRadius: '16px',
+                      background: selectedCategory?.id === cat.id ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.02)',
+                      border: selectedCategory?.id === cat.id ? `1px solid ${cat.color}` : '1px solid rgba(255,255,255,0.05)',
+                      color: 'white'
+                    }}
+                  >
+                    <div style={{ 
+                      width: '32px', 
+                      height: '32px', 
+                      borderRadius: '50%', 
+                      background: cat.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <Bookmark size={18} color="white" />
+                    </div>
+                    <span style={{ fontSize: '11px', textAlign: 'center' }}>{cat.name}</span>
+                  </button>
+                ))}
               </div>
             </motion.div>
           </motion.div>

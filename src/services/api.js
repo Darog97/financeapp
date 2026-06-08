@@ -44,6 +44,24 @@ export const getCategories = async () => {
   return data;
 };
 
+export const addCategory = async (category) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data, error } = await supabase
+    .from('categories')
+    .insert([{ ...category, user_id: user.id }])
+    .select();
+  if (error) throw error;
+  return data[0];
+};
+
+export const deleteCategory = async (id) => {
+  const { error } = await supabase
+    .from('categories')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+};
+
 export const getCards = async () => {
   const { data, error } = await supabase
     .from('cards')

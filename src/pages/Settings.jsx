@@ -1,6 +1,7 @@
 import React from 'react';
 import { Download, Upload, Trash2, Smartphone, ShieldCheck, LogOut } from 'lucide-react';
 import CreditCardManager from '../components/CreditCardManager';
+import CategoryManager from '../components/CategoryManager';
 import { supabase } from '../lib/supabase';
 
 const Settings = () => {
@@ -15,6 +16,7 @@ const Settings = () => {
         <h1>Ajustes</h1>
       </header>
 
+      <CategoryManager />
       <CreditCardManager />
 
       <section style={{ marginBottom: '32px' }}>
