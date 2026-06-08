@@ -144,3 +144,128 @@ h2 { font-weight: 600; font-size: 20px; margin-bottom: 16px; }
 .text-income { color: var(--income); }
 .text-expense { color: var(--expense); }
 .text-secondary { color: var(--text-secondary); }
+
+/* Dashboard Premium Styles */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.avatar-container {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #e1e1e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #5856d6;
+}
+
+.crown-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ffcc00;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.month-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.gift-button {
+  background: #a335ee;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(163, 53, 238, 0.4);
+}
+
+.balance-section {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.balance-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.balance-value {
+  font-size: 38px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: -1px;
+}
+
+.eye-button {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.summary-container {
+  display: flex;
+  justify-content: space-around;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 20px;
+  border-radius: 24px;
+  margin-bottom: 32px;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.summary-icon-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.summary-info span {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.summary-info strong {
+  font-size: 16px;
+  display: block;
+}
