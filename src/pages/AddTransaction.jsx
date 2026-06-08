@@ -11,33 +11,55 @@ import {
   Bookmark, 
   Wallet, 
   Image as ImageIcon,
-  Heart
+  Heart,
+  Delete
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState('0');
+  const [showKeypad, setShowKeypad] = useState(false);
   const [type, setType] = useState(initialType);
   const [isPaid, setIsPaid] = useState(true);
-  const [dateType, setDateType] = useState('today'); // today, yesterday, other
+  const [dateType, setDateType] = useState('today');
   const [note, setNote] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const inputRef = useRef(null);
 
   const categories = useLiveQuery(() => 
     db.categories.where('type').equals(type).toArray()
   , [type]) || [];
 
   useEffect(() => {
-    if (inputRef.current) inputRef.current.focus();
-    // Default category selection
     if (categories.length > 0 && !selectedCategory) {
       setSelectedCategory(categories[0]);
     }
   }, [categories]);
 
+  const handleKeypadPress = (key) => {
+    if (key === 'backspace') {
+      setValue(prev => prev.length > 1 ? prev.slice(0, -1) : '0');
+    } else if (key === ',') {
+      if (!value.includes(',')) setValue(prev => prev + ',');
+    } else if (['+', '-', '*', '/'].includes(key)) {
+      // Basic math could be implemented here, for now just append
+      setValue(prev => prev + ' ' + key + ' ');
+    } else if (key === '=') {
+      try {
+        // Simple eval-like logic (caution with real eval, but here it's controlled)
+        const sanitized = value.replace(/,/g, '.');
+        const result = eval(sanitized);
+        setValue(result.toString().replace(/\./g, ','));
+      } catch (e) {
+        // ignore errors
+      }
+    } else {
+      setValue(prev => prev === '0' ? key : prev + key);
+    }
+  };
+
   const handleSave = async () => {
-    if (!value || !selectedCategory) return;
+    const numericValue = parseFloat(value.replace(/,/g, '.').replace(/\s/g, '')) || 0;
+    if (numericValue <= 0 || !selectedCategory) return;
     
     let finalDate = new Date();
     if (dateType === 'yesterday') {
@@ -45,7 +67,7 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
     }
 
     await db.transactions.add({
-      value: parseFloat(value),
+      value: numericValue,
       type,
       categoryId: selectedCategory.id,
       date: finalDate.toISOString(),
@@ -80,25 +102,15 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
           {typeLabel} <ChevronDown size={18} />
         </button>
         
-        <div style={{ width: '80px' }}></div> {/* Spacer */}
+        <div style={{ width: '80px' }}></div>
       </header>
 
       {/* Value Section */}
-      <section className="value-input-section">
+      <section className="value-input-section" onClick={() => setShowKeypad(true)}>
         <div className="value-label">Valor da {typeLabel.toLowerCase()}</div>
         <div className="value-input-container">
           <div className="value-display">
-            R$ <input 
-              ref={inputRef}
-              type="number" 
-              placeholder="0,00"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              style={{
-                background: 'none', border: 'none', color: 'white',
-                fontSize: '42px', fontWeight: '700', outline: 'none', width: '200px'
-              }}
-            />
+            R$ <span style={{ color: 'white' }}>{value}</span>
           </div>
           <div className="currency-selector">
             BRL <ChevronDown size={16} />
@@ -108,7 +120,6 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
 
       {/* Form Body */}
       <div className="form-body-card">
-        {/* Paid/Received Toggle */}
         <div className="form-row">
           <div className="form-row-left">
             <CheckCircle2 size={22} color="#8e8e93" />
@@ -120,7 +131,6 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
           </label>
         </div>
 
-        {/* Date Selector */}
         <div className="form-row">
           <div className="form-row-left">
             <CalendarDays size={22} color="#8e8e93" />
@@ -141,7 +151,6 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
           </div>
         </div>
 
-        {/* Description */}
         <div className="form-row">
           <div className="form-row-left" style={{ flex: 1 }}>
             <Pencil size={22} color="#8e8e93" />
@@ -156,7 +165,6 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
           <Heart size={20} color="#8e8e93" />
         </div>
 
-        {/* Category */}
         <div className="form-row">
           <div className="form-row-left">
             <Bookmark size={22} color="#8e8e93" />
@@ -168,7 +176,6 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
           <ChevronRight size={20} color="#3a3a3c" />
         </div>
 
-        {/* Account */}
         <div className="form-row">
           <div className="form-row-left">
             <Wallet size={22} color="#8e8e93" />
@@ -180,21 +187,6 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
           <ChevronRight size={20} color="#3a3a3c" />
         </div>
 
-        {/* Attachment */}
-        <div className="form-row">
-          <div className="form-row-left">
-            <ImageIcon size={22} color="#8e8e93" />
-            <span style={{ color: 'white' }}>Anexo</span>
-          </div>
-          <div style={{ color: mainColor }}><ImageIcon size={24} /></div>
-        </div>
-
-        <button 
-          style={{ background: 'none', border: 'none', color: mainColor, marginTop: '24px', width: '100%', fontWeight: '600' }}
-        >
-          Mais detalhes
-        </button>
-
         {/* Save Button */}
         <button 
           className="save-button" 
@@ -204,6 +196,56 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
           Salvar
         </button>
       </div>
+
+      {/* Numeric Keypad Overlay */}
+      <AnimatePresence>
+        {showKeypad && (
+          <motion.div 
+            className="keypad-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div 
+              className="keypad-container"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            >
+              <div className="keypad-display">
+                <span>R$</span>
+                <span className="keypad-current-val">{value}</span>
+                <button onClick={() => handleKeypadPress('backspace')} style={{ background: 'none', border: 'none', color: '#8e8e93' }}>
+                  <Delete size={28} />
+                </button>
+              </div>
+
+              <div className="keypad-grid">
+                {[7, 8, 9, '+', 4, 5, 6, '-', 1, 2, 3, '*', ',', 0, '=', '/'].map((key) => (
+                  <button 
+                    key={key} 
+                    className={`keypad-btn ${['+', '-', '*', '/', '=', ','].includes(key) ? 'operator' : ''}`}
+                    onClick={() => handleKeypadPress(key.toString())}
+                  >
+                    {key}
+                  </button>
+                ))}
+              </div>
+
+              <div className="keypad-actions">
+                <button className="keypad-action-btn cancel" onClick={() => setShowKeypad(false)}>Cancelar</button>
+                <button 
+                  className={`keypad-action-btn done ${type}`} 
+                  onClick={() => setShowKeypad(false)}
+                >
+                  Pronto
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

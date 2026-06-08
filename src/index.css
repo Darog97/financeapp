@@ -494,3 +494,92 @@ input:checked + .slider:before { transform: translateX(22px); }
   margin-top: auto;
   cursor: pointer;
 }
+
+/* Keypad / Digitador Styles */
+.keypad-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.keypad-container {
+  background: #1c1c1e;
+  border-radius: 30px 30px 0 0;
+  padding: 20px;
+  padding-bottom: calc(20px + var(--safe-area-bottom));
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+}
+
+.keypad-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  margin-bottom: 20px;
+  color: #8e8e93;
+  font-size: 18px;
+}
+
+.keypad-current-val {
+  font-size: 32px;
+  font-weight: 700;
+  color: white;
+}
+
+.keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  margin-bottom: 24px;
+}
+
+.keypad-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  font-weight: 500;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.keypad-btn:active {
+  background: rgba(255,255,255,0.1);
+}
+
+.keypad-btn.operator {
+  color: #8e8e93;
+  font-weight: 400;
+}
+
+.keypad-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.keypad-action-btn {
+  padding: 16px;
+  border-radius: 25px;
+  border: none;
+  font-weight: 700;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.keypad-action-btn.cancel {
+  background: #2c2c2e;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.keypad-action-btn.done.income { background: var(--income); color: white; }
+.keypad-action-btn.done.expense { background: var(--expense); color: white; }
