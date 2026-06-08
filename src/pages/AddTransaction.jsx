@@ -99,7 +99,7 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
 
         promises.push(addTransaction({
           value: numInstallments > 1 ? numericValue / numInstallments : numericValue,
-          type,
+          type: type === 'card' ? 'expense' : type,
           category_id: selectedCategory.id,
           card_id: selectedCard?.id || null,
           date: entryDate.toISOString().split('T')[0],
@@ -121,8 +121,8 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
 
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
 
-  const mainColor = type === 'income' ? '#34c759' : '#ff2d55';
-  const typeLabel = type === 'income' ? 'Receita' : 'Despesa';
+  const mainColor = type === 'income' ? '#34c759' : (type === 'card' ? '#5856d6' : '#ff2d55');
+  const typeLabel = type === 'income' ? 'Receita' : (type === 'card' ? 'Cartão' : 'Despesa');
 
   return (
     <motion.div 
@@ -132,24 +132,32 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
       className="transaction-modal"
     >
+      {/* Input de Data Escondido */}
+      <input 
+        type="date" 
+        ref={dateInputRef}
+        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+        onChange={(e) => setDateType(e.target.value)}
+        value={dateType.includes('-') ? dateType : new Date().toISOString().split('T')[0]}
+      />
+
       {/* Header */}
       <header className="transaction-header">
         <button className="btn-cancel" onClick={onClose}>Cancelar</button>
         
-        <button 
+        <div 
           className="type-selector-pill" 
           style={{ background: mainColor }}
-          onClick={() => setType(type === 'income' ? 'expense' : 'income')}
         >
-          {typeLabel} <ChevronDown size={18} />
-        </button>
+          {type === 'card' ? 'Despesa no Cartão' : (type === 'expense' ? 'Despesa (Dinheiro)' : 'Receita')}
+        </div>
         
         <div style={{ width: '80px' }}></div>
       </header>
 
       {/* Value Section */}
       <section className="value-input-section" onClick={() => setShowKeypad(true)}>
-        <div className="value-label">Valor da {typeLabel.toLowerCase()}</div>
+        <div className="value-label">Valor da {type === 'card' ? 'compra' : typeLabel.toLowerCase()}</div>
         <div className="value-input-container">
           <div className="value-display">
             R$ <span style={{ color: 'white' }}>{value}</span>
@@ -196,13 +204,8 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
                   type="date" 
                   onChange={(e) => setDateType(e.target.value)}
                   style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    opacity: 0,
-                    cursor: 'pointer'
+                    position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+                    opacity: 0, cursor: 'pointer'
                   }}
                   value={dateType.includes('-') ? dateType : new Date().toISOString().split('T')[0]}
                 />
@@ -225,7 +228,7 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
           <Heart size={20} color="#8e8e93" />
         </div>
 
-        {/* Categoria Clicável */}
+        {/* Categoria */}
         <div className="form-row" onClick={() => setShowCategoryPicker(true)} style={{ cursor: 'pointer' }}>
           <div className="form-row-left">
             <Bookmark size={22} color="#8e8e93" />
@@ -237,24 +240,14 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
           <ChevronRight size={20} color="#3a3a3c" />
         </div>
 
-        {/* Credit Card Selection (only for expenses) */}
-        {type === 'expense' && cards.length > 0 && (
+        {/* Seleção de Cartão (SÓ aparece no modo 'card') */}
+        {type === 'card' && cards.length > 0 && (
           <div className="form-row" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
             <div className="form-row-left">
               <CreditCard size={22} color="#8e8e93" />
-              <span style={{ color: 'white', fontSize: '14px' }}>Pagar com cartão?</span>
+              <span style={{ color: 'white', fontSize: '14px' }}>Escolha o cartão</span>
             </div>
             <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', width: '100%', padding: '4px 0' }}>
-              <button 
-                onClick={() => setSelectedCard(null)}
-                style={{
-                  background: !selectedCard ? 'var(--accent)' : 'rgba(255,255,255,0.05)',
-                  color: 'white', border: 'none', padding: '6px 12px', borderRadius: '12px',
-                  whiteSpace: 'nowrap', fontSize: '12px'
-                }}
-              >
-                Dinheiro / Conta
-              </button>
               {cards.map(card => (
                 <button 
                   key={card.id}
@@ -262,7 +255,7 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
                   style={{
                     background: selectedCard?.id === card.id ? '#5856d6' : 'rgba(255,255,255,0.05)',
                     color: 'white', border: 'none', padding: '6px 12px', borderRadius: '12px',
-                    whiteSpace: 'nowrap', fontSize: '12px'
+                    whiteSpace: 'nowrap', fontSize: '12px', cursor: 'pointer'
                   }}
                 >
                   {card.name}
@@ -282,7 +275,7 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
           <ChevronRight size={20} color="#3a3a3c" />
         </div>
 
-        {/* Opções Avançadas de Parcelamento/Recorrência */}
+        {/* Opções de Repetir/Parcelar */}
         <div 
           onClick={() => setShowAdvanceOptions(!showAdvanceOptions)}
           style={{ 
@@ -299,7 +292,9 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
               <div style={{ background: 'rgba(88, 86, 214, 0.1)', padding: '6px', borderRadius: '8px' }}>
                 <CheckCircle2 size={18} color="#5856d6" />
               </div>
-              <span style={{ color: 'white', fontSize: '14px', fontWeight: '500' }}>Repetir ou Parcelar?</span>
+              <span style={{ color: 'white', fontSize: '14px', fontWeight: '500' }}>
+                {type === 'card' ? 'Parcelamento' : 'Repetir Lançamento?'}
+              </span>
             </div>
             <ChevronDown size={18} color="#8e8e93" style={{ transform: showAdvanceOptions ? 'rotate(180deg)' : 'none', transition: '0.3s' }} />
           </div>
@@ -314,28 +309,30 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
               >
                 <div style={{ padding: '16px 0 8px 0', display: 'flex', flexDirection: 'column', gap: '16px', borderTop: '1px solid rgba(255,255,255,0.05)', marginTop: '12px' }}>
                   
-                  {/* Parcelamento */}
-                  <div className="flex-between">
-                    <span style={{ color: '#8e8e93', fontSize: '14px' }}>Número de Parcelas</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                       <button 
-                        onClick={(e) => { e.stopPropagation(); setInstallments(Math.max(1, installments - 1))}}
-                        style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', cursor: 'pointer' }}
-                       >-</button>
-                       <span style={{ color: 'white', fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{installments}</span>
-                       <button 
-                        onClick={(e) => { e.stopPropagation(); setInstallments(installments + 1)}}
-                        style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', cursor: 'pointer' }}
-                       >+</button>
+                  {/* Parcelas (SÓ NO CARTÃO) */}
+                  {type === 'card' && (
+                    <div className="flex-between">
+                      <span style={{ color: '#8e8e93', fontSize: '14px' }}>Número de Parcelas</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setInstallments(Math.max(1, installments - 1))}}
+                          style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', cursor: 'pointer' }}
+                        >-</button>
+                        <span style={{ color: 'white', fontWeight: '600', minWidth: '20px', textAlign: 'center' }}>{installments}</span>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setInstallments(installments + 1)}}
+                          style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white', cursor: 'pointer' }}
+                        >+</button>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  {/* Recorrência Fixa */}
+                  {/* Recorrência (FIXA - Disponível para todos se quiserem repetir mensalmente) */}
                   <div className="flex-between">
                     <span style={{ color: '#8e8e93', fontSize: '14px' }}>Recorrência Fixa?</span>
                     <label className="switch" style={{ transform: 'scale(0.8)' }} onClick={e => e.stopPropagation()}>
                       <input type="checkbox" checked={isRecurring} onChange={() => setIsRecurring(!isRecurring)} />
-                      <span className={`slider ${type}`}></span>
+                      <span className={`slider ${type === 'card' ? 'expense' : type}`}></span>
                     </label>
                   </div>
 
@@ -347,7 +344,7 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
                           onClick={(e) => { e.stopPropagation(); setRecurrencePeriod(p) }}
                           style={{
                             flex: 1, padding: '8px', fontSize: '12px', borderRadius: '10px',
-                            background: recurrencePeriod === p ? 'var(--accent)' : 'rgba(255,255,255,0.05)',
+                            background: recurrencePeriod === p ? (type === 'card' ? '#5856d6' : 'var(--accent)') : 'rgba(255,255,255,0.05)',
                             border: 'none', color: 'white', cursor: 'pointer'
                           }}
                         >

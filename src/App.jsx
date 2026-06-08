@@ -7,7 +7,8 @@ import {
   BarChart3, 
   Settings as SettingsIcon,
   ArrowUpCircle,
-  ArrowDownCircle
+  ArrowDownCircle,
+  CreditCard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -120,6 +121,18 @@ function App() {
                 >
                   <div className="icon-circle"><ArrowUpCircle size={24} /></div>
                   <span>Receita</span>
+                </motion.button>
+
+                <motion.button
+                  className="quick-menu-item"
+                  initial={{ y: 0, x: 0, opacity: 0, scale: 0 }}
+                  animate={{ y: -130, x: 0, opacity: 1, scale: 1 }}
+                  exit={{ y: 0, x: 0, opacity: 0, scale: 0 }}
+                  onClick={() => handleOpenAdd('card')}
+                  style={{ color: '#5856d6' }}
+                >
+                  <div className="icon-circle" style={{ background: 'rgba(52, 199, 89, 0.1) !important' }}><CreditCard size={24} /></div>
+                  <span>Cartão</span>
                 </motion.button>
 
                 <motion.button
