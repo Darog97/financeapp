@@ -41,21 +41,10 @@ const Dashboard = () => {
   return (
     <div className="animate-in">
       {/* Header */}
-      <header className="dashboard-header">
-        <div className="avatar-container">
-          <div className="avatar">
-            <User size={20} color="#5856d6" />
-          </div>
-          <div className="crown-badge">👑</div>
-        </div>
-        
+      <header className="dashboard-header" style={{ justifyContent: 'center' }}>
         <div className="month-selector">
           {capitalizedMonth} <ChevronDown size={18} />
         </div>
-
-        <button className="gift-button">
-          <Gift size={20} />
-        </button>
       </header>
 
       {/* Balance Section */}
