@@ -124,6 +124,14 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
   const mainColor = type === 'income' ? '#34c759' : '#ff2d55';
   const typeLabel = type === 'income' ? 'Receita' : 'Despesa';
 
+  const dateInputRef = useRef(null);
+
+  const handleOpenCalendar = () => {
+    if (dateInputRef.current) {
+      dateInputRef.current.showPicker(); // Aciona o calendário nativo
+    }
+  };
+
   return (
     <motion.div 
       initial={{ y: '100%' }}
@@ -132,6 +140,15 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
       className="transaction-modal"
     >
+      {/* Input de Data Escondido */}
+      <input 
+        type="date" 
+        ref={dateInputRef}
+        style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+        onChange={(e) => setDateType(e.target.value)}
+        value={dateType.includes('-') ? dateType : new Date().toISOString().split('T')[0]}
+      />
+
       {/* Header */}
       <header className="transaction-header">
         <button className="btn-cancel" onClick={onClose}>Cancelar</button>
@@ -186,13 +203,13 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
                 onClick={() => setDateType('yesterday')}
               >Ontem</button>
               <button 
-                className={`date-pill ${dateType === 'other' ? `active ${type}` : ''}`}
-                onClick={() => {
-                  // Aqui poderíamos abrir um date picker nativo
-                  const d = prompt("Digite a data (AAAA-MM-DD):", new Date().toISOString().split('T')[0]);
-                  if (d) setDateType(d);
-                }}
-              >{dateType.includes('-') ? dateType : 'Outros'}</button>
+                className={`date-pill ${dateType.includes('-') ? `active ${type}` : ''}`}
+                onClick={handleOpenCalendar}
+              >
+                {dateType.includes('-') 
+                  ? new Date(dateType + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) 
+                  : 'Outros'}
+              </button>
             </div>
           </div>
         </div>
