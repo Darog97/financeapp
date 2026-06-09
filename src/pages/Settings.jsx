@@ -2,6 +2,7 @@ import React from 'react';
 import { Download, Upload, Trash2, Smartphone, ShieldCheck, LogOut } from 'lucide-react';
 import CreditCardManager from '../components/CreditCardManager';
 import CategoryManager from '../components/CategoryManager';
+import PersonManager from '../components/PersonManager';
 import { supabase } from '../lib/supabase';
 
 const Settings = () => {
@@ -18,8 +19,9 @@ const Settings = () => {
 
       <CategoryManager />
       <CreditCardManager />
-
-      <section style={{ marginBottom: '32px' }}>
+      <PersonManager />
+      
+      <section style={{ marginTop: '20px', marginBottom: '32px' }}>
         <h2 className="text-secondary" style={{ fontSize: '13px', textTransform: 'uppercase' }}>Conta Online</h2>
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <button 

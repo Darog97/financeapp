@@ -11,10 +11,11 @@ import {
   Image as ImageIcon,
   Heart,
   Delete,
-  CreditCard
+  CreditCard,
+  User
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { addTransaction, getCategories, getCards } from '../services/api';
+import { addTransaction, getCategories, getCards, getPeople } from '../services/api';
 
 const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
   const [value, setValue] = useState('0');
@@ -24,14 +25,18 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
   const [dateType, setDateType] = useState('today');
   const [note, setNote] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedPerson, setSelectedPerson] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
   const [categories, setCategories] = useState([]);
   const [cards, setCards] = useState([]);
+  const [people, setPeople] = useState([]);
   const [isRecurring, setIsRecurring] = useState(false);
   const [installments, setInstallments] = useState(1);
   const [recurrencePeriod, setRecurrencePeriod] = useState('monthly');
   const [showAdvanceOptions, setShowAdvanceOptions] = useState(false);
+  const [showPersonPicker, setShowPersonPicker] = useState(false);
   const inputRef = useRef(null);
+  const dateInputRef = useRef(null);
 
   useEffect(() => {
     loadInitialData();
@@ -39,13 +44,15 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
 
   const loadInitialData = async () => {
     try {
-      const [cats, crds] = await Promise.all([
+      const [cats, crds, ppl] = await Promise.all([
         getCategories(),
-        getCards()
+        getCards(),
+        getPeople()
       ]);
-      const filteredCats = cats.filter(c => c.type === type);
+      const filteredCats = cats.filter(c => c.type === (type === 'card' ? 'expense' : type));
       setCategories(filteredCats);
       setCards(crds);
+      setPeople(ppl);
       
       if (filteredCats.length > 0) {
         setSelectedCategory(filteredCats[0]);
@@ -101,6 +108,7 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
           value: numInstallments > 1 ? numericValue / numInstallments : numericValue,
           type: type === 'card' ? 'expense' : type,
           category_id: selectedCategory.id,
+          person_id: selectedPerson?.id || null,
           card_id: selectedCard?.id || null,
           date: entryDate.toISOString().split('T')[0],
           description: numInstallments > 1 ? `${note} (${i + 1}/${numInstallments})` : note,
@@ -255,6 +263,17 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
             </div>
           </div>
         )}
+
+        {/* Para quem? (Opcional) */}
+        <div className="form-row" onClick={() => setShowPersonPicker(true)} style={{ cursor: 'pointer' }}>
+          <div className="form-row-left">
+            <User size={22} color="#8e8e93" />
+            <div className="category-badge" style={{ borderColor: selectedPerson ? '#5856d6' : '#8e8e93' }}>
+              <span style={{ color: 'white' }}>{selectedPerson?.name || 'Para quem? (Opcional)'}</span>
+            </div>
+          </div>
+          <ChevronRight size={20} color="#3a3a3c" />
+        </div>
 
         <div className="form-row">
           <div className="form-row-left">
@@ -467,6 +486,66 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
                       <Bookmark size={18} color="white" />
                     </div>
                     <span style={{ fontSize: '11px', textAlign: 'center' }}>{cat.name}</span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* Person Picker Sheet */}
+      <AnimatePresence>
+        {showPersonPicker && (
+          <motion.div 
+            className="keypad-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowPersonPicker(false)}
+            style={{ zIndex: 4000 }}
+          >
+            <motion.div 
+              className="keypad-container"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              onClick={e => e.stopPropagation()}
+              style={{ padding: '24px', maxHeight: '70vh', overflowY: 'auto' }}
+            >
+              <div className="flex-between" style={{ marginBottom: '20px' }}>
+                <h3 style={{ margin: 0, color: 'white' }}>Para quem é?</h3>
+                <button onClick={() => setShowPersonPicker(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)' }}>
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <button
+                  onClick={() => {
+                    setSelectedPerson(null);
+                    setShowPersonPicker(false);
+                  }}
+                  style={{
+                    padding: '16px', borderRadius: '16px', background: !selectedPerson ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.02)',
+                    border: '1px solid rgba(255,255,255,0.1)', color: 'white', textAlign: 'left'
+                  }}
+                >
+                  Ninguém (Pessoal)
+                </button>
+                {people.map(p => (
+                  <button
+                    key={p.id}
+                    onClick={() => {
+                      setSelectedPerson(p);
+                      setShowPersonPicker(false);
+                    }}
+                    style={{
+                      padding: '16px', borderRadius: '16px', 
+                      background: selectedPerson?.id === p.id ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.1)', color: 'white', textAlign: 'left'
+                    }}
+                  >
+                    {p.name}
                   </button>
                 ))}
               </div>

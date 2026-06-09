@@ -18,6 +18,7 @@ import Transactions from './pages/Transactions';
 import AddTransaction from './pages/AddTransaction';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import Cards from './pages/Cards';
 
 import { supabase } from './lib/supabase';
 import { Auth } from './components/Auth';
@@ -53,6 +54,7 @@ function App() {
     switch (activeTab) {
       case 'dashboard': return <Dashboard />;
       case 'transactions': return <Transactions />;
+      case 'cards': return <Cards />;
       case 'reports': return <Reports />;
       case 'settings': return <Settings />;
       default: return <Dashboard />;
@@ -105,7 +107,7 @@ function App() {
           onClick={() => setActiveTab('transactions')}
         >
           <History size={24} />
-          <span>Transações</span>
+          <span>Histórico</span>
         </button>
         
         <div className="add-button-container">
@@ -131,7 +133,7 @@ function App() {
                   onClick={() => handleOpenAdd('card')}
                   style={{ color: '#5856d6' }}
                 >
-                  <div className="icon-circle" style={{ background: 'rgba(52, 199, 89, 0.1) !important' }}><CreditCard size={24} /></div>
+                  <div className="icon-circle" style={{ background: 'rgba(88, 86, 214, 0.1)' }}><CreditCard size={24} /></div>
                   <span>Cartão</span>
                 </motion.button>
 
@@ -163,11 +165,11 @@ function App() {
         </div>
 
         <button 
-          className={`tab-item ${activeTab === 'reports' ? 'active' : ''}`}
-          onClick={() => setActiveTab('reports')}
+          className={`tab-item ${activeTab === 'cards' ? 'active' : ''}`}
+          onClick={() => setActiveTab('cards')}
         >
-          <BarChart3 size={24} />
-          <span>Relatórios</span>
+          <CreditCard size={24} />
+          <span>Cartões</span>
         </button>
         <button 
           className={`tab-item ${activeTab === 'settings' ? 'active' : ''}`}
