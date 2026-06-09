@@ -133,13 +133,15 @@ const Projection = () => {
       setResult(text);
     } catch (err) {
       console.error("Gemini Error:", err);
-      const errorMessage = err.message || '';
-      if (errorMessage.includes('API_KEY_INVALID')) {
-        setError('Chave de API inválida. Certifique-se de que ela começa com "AIza".');
-      } else if (errorMessage.includes('QUOTA_EXCEEDED')) {
-        setError('Limite de uso gratuito atingido no Google AI Studio.');
+      // Pega a mensagem de erro detalhada do objeto de erro do Google
+      let detail = err.message || 'Erro desconhecido';
+      
+      if (detail.includes('API_KEY_INVALID')) {
+        setError('Chave de API inválida no servidor do Google.');
+      } else if (detail.includes('MODEL_NOT_FOUND')) {
+        setError('Modelo gemini-1.5-flash não encontrado. Tente novamente mais tarde.');
       } else {
-        setError(`Erro: ${errorMessage || 'Falha na comunicação com o Gemini.'}`);
+        setError(`Erro do Google: ${detail}`);
       }
     } finally {
       setLoading(false);
