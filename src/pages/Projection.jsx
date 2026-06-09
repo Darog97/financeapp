@@ -97,7 +97,7 @@ const Projection = () => {
 
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
       const upcomingText = stats.upcomingItems.map(i => `- ${i.description}: R$ ${i.value.toFixed(2)} (${i.date})`).join('\n');
 
