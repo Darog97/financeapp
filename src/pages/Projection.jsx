@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Brain, Sparkles, AlertTriangle, CheckCircle2, TrendingUp, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getTransactions } from '../services/api';
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
 const Projection = () => {
   const [amount, setAmount] = useState('');
@@ -43,19 +43,16 @@ const Projection = () => {
         const date = new Date(t.date);
         date.setHours(0, 0, 0, 0);
 
-        // Saldo atual considera tudo até hoje
         if (date <= now) {
           if (t.type === 'income') balance += val;
           else balance -= val;
         }
 
-        // Fluxo dos últimos 30 dias
         if (date <= now && date >= thirtyDaysAgo) {
           if (t.type === 'income') inc30 += val;
           else exp30 += val;
         }
 
-        // Compromissos futuros
         if (date > now && t.type !== 'income') {
           futExp += val;
           upcoming.push({
@@ -66,7 +63,6 @@ const Projection = () => {
         }
       });
 
-      // Ordenar próximos compromissos por data e pegar os 5 primeiros
       upcoming.sort((a, b) => new Date(a.date) - new Date(b.date));
 
       setStats({ 
@@ -96,12 +92,12 @@ const Projection = () => {
     setResult(null);
 
     try {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
+      // USANDO A NOVA BIBLIOTECA @google/genai QUE VOCÊ ENCONTROU
+      const ai = new GoogleGenAI({ apiKey });
+      
       const upcomingText = stats.upcomingItems.map(i => `- ${i.description}: R$ ${i.value.toFixed(2)} (${i.date})`).join('\n');
 
-      const prompt = `
+      const promptData = `
         Você é um consultor financeiro pessoal inteligente e direto.
         Análise de Risco para NOVO GASTO.
 
@@ -110,39 +106,29 @@ const Projection = () => {
         - Média de Gastos (últimos 30 dias): R$ ${stats.last30DaysExpenses.toFixed(2)}
         - Média de Receitas (últimos 30 dias): R$ ${stats.last30DaysIncome.toFixed(2)}
 
-        COMPROMISSOS FUTUROS JÁ AGENDADOS (Parcelas, contas etc):
+        COMPROMISSOS FUTUROS JÁ AGENDADOS:
         - Total Futuro: R$ ${stats.futureExpenses.toFixed(2)}
-        - Próximos itens:
         ${upcomingText || 'Nenhum compromisso futuro agendado.'}
 
         PROPOSTA DE NOVO GASTO:
         - Valor: R$ ${parseFloat(amount).toFixed(2)}
         - Descrição: "${description}"
 
-        CONSIDERE: O saldo atual MENOS os compromissos futuros. Se o novo gasto for maior que o que "sobra" após as contas futuras, o risco é ALTO.
-        
-        RESPONDA: Em PORTUGUÊS, de forma SIMPLES, CURTA e DIRETA (máximo 3 frases).
-        Diga explicitamente se "Vale a pena" ou "É arriscado".
-        Seja sincero sobre o impacto real no futuro (ex: "Isso vai te deixar sem margem para suas próximas 3 parcelas").
+        RESPONDA: Em PORTUGUÊS, de forma SIMPLES, CURTA e DIRETA.
+        Diga se "Vale a pena" ou "É arriscado".
       `;
 
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-      
-      setResult(text);
+      const response = await ai.models.generateContent({
+        model: "gemini-3.5-flash", // Utilizando o modelo solicitado pelo usuário
+        contents: promptData
+      });
+
+      setResult(response.text);
+
     } catch (err) {
       console.error("Gemini Error:", err);
-      // Pega a mensagem de erro detalhada do objeto de erro do Google
       let detail = err.message || 'Erro desconhecido';
-      
-      if (detail.includes('API_KEY_INVALID')) {
-        setError('Chave de API inválida no servidor do Google.');
-      } else if (detail.includes('MODEL_NOT_FOUND')) {
-        setError('Modelo gemini-1.5-flash não encontrado. Tente novamente mais tarde.');
-      } else {
-        setError(`Erro do Google: ${detail}`);
-      }
+      setError(`Erro do Google (Novo SDK): ${detail}`);
     } finally {
       setLoading(false);
     }
@@ -153,9 +139,9 @@ const Projection = () => {
       <header>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
            <Brain className="text-primary" size={24} />
-           <h1>Projeção & Risco</h1>
+           <h1>IA Projeção</h1>
         </div>
-        <p className="text-secondary">Simule gastos e veja o impacto real</p>
+        <p className="text-secondary">Simule e analise o impacto futuro</p>
       </header>
 
       <div className="card" style={{ marginBottom: '24px' }}>
@@ -193,8 +179,8 @@ const Projection = () => {
         </div>
 
         {error && (
-          <div style={{ color: 'var(--expense)', display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px', fontSize: '14px' }}>
-            <AlertTriangle size={16} />
+          <div style={{ color: 'var(--expense)', display: 'flex', alignItems: 'flex-start', gap: '8px', marginTop: '12px', fontSize: '12px', background: 'rgba(255,59,48,0.1)', padding: '10px', borderRadius: '8px' }}>
+            <AlertTriangle size={16} style={{ flexShrink: 0 }} />
             {error}
           </div>
         )}
@@ -243,9 +229,9 @@ const Projection = () => {
               )}
               <div>
                 <h3 style={{ margin: '0 0 8px 0', fontSize: '16px' }}>
-                  {result.toLowerCase().includes('riscado') ? 'Análise de Risco' : 'Vale a pena!'}
+                  Análise da IA
                 </h3>
-                <p style={{ margin: 0, lineHeight: '1.5', color: 'var(--text-secondary)' }}>
+                <p style={{ margin: 0, lineHeight: '1.5', color: 'var(--text-primary)' }}>
                   {result}
                 </p>
               </div>
@@ -270,33 +256,7 @@ const Projection = () => {
             </div>
           </div>
         </div>
-        
-        {stats.upcomingItems.length > 0 && (
-          <div className="card" style={{ padding: '12px 16px' }}>
-            <div className="text-secondary" style={{ fontSize: '11px', textTransform: 'uppercase', marginBottom: '8px' }}>Próximos Compromissos</div>
-            {stats.upcomingItems.map((item, idx) => (
-              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '4px 0', borderBottom: idx === stats.upcomingItems.length - 1 ? 'none' : '0.5px solid var(--border)' }}>
-                <span style={{ color: 'var(--text-primary)', opacity: 0.8 }}>{item.description}</span>
-                <span style={{ color: 'var(--expense)', fontWeight: '500' }}>R$ {item.value.toFixed(2)}</span>
-              </div>
-            ))}
-          </div>
-        )}
       </section>
-
-      {!apiKey && (
-        <div className="card" style={{ marginTop: '24px', background: 'rgba(255, 149, 0, 0.1)', border: '1px solid rgba(255, 149, 0, 0.2)' }}>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-            <Info size={20} style={{ color: '#ff9500' }} />
-            <div>
-              <div style={{ fontWeight: '500', color: '#ff9500', marginBottom: '4px' }}>Configuração Necessária</div>
-              <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.7)' }}>
-                Você precisa configurar sua chave da API do Gemini nas configurações para usar a inteligência artificial.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
