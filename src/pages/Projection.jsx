@@ -16,7 +16,7 @@ const Projection = () => {
     futureExpenses: 0,
     upcomingItems: []
   });
-  const [apiKey, setApiKey] = useState(import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem('gemini_api_key') || '');
+  const [apiKey, setApiKey] = useState(localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -133,7 +133,14 @@ const Projection = () => {
       setResult(text);
     } catch (err) {
       console.error("Gemini Error:", err);
-      setError('Erro ao consultar o Gemini. Verifique sua chave de API.');
+      const errorMessage = err.message || '';
+      if (errorMessage.includes('API_KEY_INVALID')) {
+        setError('Chave de API inválida. Certifique-se de que ela começa com "AIza".');
+      } else if (errorMessage.includes('QUOTA_EXCEEDED')) {
+        setError('Limite de uso gratuito atingido no Google AI Studio.');
+      } else {
+        setError(`Erro: ${errorMessage || 'Falha na comunicação com o Gemini.'}`);
+      }
     } finally {
       setLoading(false);
     }

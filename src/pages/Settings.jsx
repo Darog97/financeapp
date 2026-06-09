@@ -11,7 +11,7 @@ const Settings = () => {
     await supabase.auth.signOut();
   };
 
-  const [apiKey, setApiKey] = React.useState(import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem('gemini_api_key') || '');
+  const [apiKey, setApiKey] = React.useState(localStorage.getItem('gemini_api_key') || import.meta.env.VITE_GEMINI_API_KEY || '');
 
   const saveApiKey = () => {
     localStorage.setItem('gemini_api_key', apiKey);
