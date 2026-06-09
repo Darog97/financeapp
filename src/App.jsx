@@ -8,7 +8,8 @@ import {
   Settings as SettingsIcon,
   ArrowUpCircle,
   ArrowDownCircle,
-  CreditCard
+  CreditCard,
+  Brain
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -18,7 +19,8 @@ import Transactions from './pages/Transactions';
 import AddTransaction from './pages/AddTransaction';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
-import Cards from './pages/Cards';
+import Projection from './pages/Projection';
+// import Cards from './pages/Cards'; // Comentado pois o arquivo não foi encontrado
 
 import { supabase } from './lib/supabase';
 import { Auth } from './components/Auth';
@@ -54,8 +56,8 @@ function App() {
     switch (activeTab) {
       case 'dashboard': return <Dashboard />;
       case 'transactions': return <Transactions />;
-      case 'cards': return <Cards />;
       case 'reports': return <Reports />;
+      case 'projection': return <Projection />;
       case 'settings': return <Settings />;
       default: return <Dashboard />;
     }
@@ -165,11 +167,11 @@ function App() {
         </div>
 
         <button 
-          className={`tab-item ${activeTab === 'cards' ? 'active' : ''}`}
-          onClick={() => setActiveTab('cards')}
+          className={`tab-item ${activeTab === 'projection' ? 'active' : ''}`}
+          onClick={() => setActiveTab('projection')}
         >
-          <CreditCard size={24} />
-          <span>Cartões</span>
+          <Brain size={24} />
+          <span>IA</span>
         </button>
         <button 
           className={`tab-item ${activeTab === 'settings' ? 'active' : ''}`}

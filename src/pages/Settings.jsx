@@ -11,11 +11,54 @@ const Settings = () => {
     await supabase.auth.signOut();
   };
 
+  const [apiKey, setApiKey] = React.useState(import.meta.env.VITE_GEMINI_API_KEY || localStorage.getItem('gemini_api_key') || '');
+
+  const saveApiKey = () => {
+    localStorage.setItem('gemini_api_key', apiKey);
+    alert('Chave salva com sucesso!');
+  };
+
   return (
     <div className="animate-in">
       <header>
         <h1>Ajustes</h1>
       </header>
+
+      <section style={{ marginBottom: '32px' }}>
+        <h2 className="text-secondary" style={{ fontSize: '13px', textTransform: 'uppercase' }}>Inteligência Artificial</h2>
+        <div className="card">
+          <div className="input-group">
+            <label style={{ fontSize: '12px', marginBottom: '8px', display: 'block' }}>Gemini API Key</label>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input 
+                type="password" 
+                placeholder="Cole sua chave aqui..." 
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                style={{ 
+                  flex: 1,
+                  padding: '12px', 
+                  borderRadius: '12px', 
+                  background: 'var(--bg-secondary)', 
+                  border: '1px solid var(--border)',
+                  color: 'var(--text-primary)',
+                  fontSize: '14px'
+                }}
+              />
+              <button 
+                onClick={saveApiKey}
+                className="btn-primary"
+                style={{ padding: '0 16px' }}
+              >
+                Salvar
+              </button>
+            </div>
+          </div>
+          <p className="text-secondary" style={{ fontSize: '11px', marginTop: '8px' }}>
+            Usamos sua chave para rodar as projeções financeiras. Seus dados não saem do app.
+          </p>
+        </div>
+      </section>
 
       <CategoryManager />
       <CreditCardManager />

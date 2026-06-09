@@ -10,6 +10,8 @@
   --safe-area-bottom: env(safe-area-inset-bottom);
   --radius-ios: 12px;
   --font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --bg-secondary: #f2f2f7;
+  --border: rgba(0,0,0,0.1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,6 +21,8 @@
     --text-primary: #ffffff;
     --text-secondary: #8e8e93;
     --tab-bar-bg: rgba(28, 28, 30, 0.8);
+    --bg-secondary: #2c2c2e;
+    --border: rgba(255,255,255,0.1);
   }
 }
 
@@ -578,8 +582,80 @@ input:checked + .slider:before { transform: translateX(22px); }
 .keypad-action-btn.cancel {
   background: #2c2c2e;
   color: white;
-  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .keypad-action-btn.done.income { background: var(--income); color: white; }
 .keypad-action-btn.done.expense { background: var(--expense); color: white; }
+
+/* Global Styles */
+.animate-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-primary:active {
+  opacity: 0.8;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input-group {
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.amount-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 16px;
+}
+
+.currency-prefix {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-right: 8px;
+}
+
+.amount-input {
+  background: none !important;
+  border: none !important;
+  color: var(--text-primary) !important;
+  font-size: 32px !important;
+  font-weight: 700 !important;
+  width: 100% !important;
+  outline: none !important;
+  padding: 0 !important;
+}
+
+input[type="text"] {
+    outline: none;
+}
