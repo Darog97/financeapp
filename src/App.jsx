@@ -9,7 +9,8 @@ import {
   ArrowUpCircle,
   ArrowDownCircle,
   CreditCard,
-  Brain
+  Brain,
+  Target
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -20,6 +21,7 @@ import AddTransaction from './pages/AddTransaction';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import Projection from './pages/Projection';
+import Planning from './pages/Planning';
 // import Cards from './pages/Cards'; // Comentado pois o arquivo não foi encontrado
 
 import { supabase } from './lib/supabase';
@@ -58,6 +60,7 @@ function App() {
       case 'transactions': return <Transactions />;
       case 'reports': return <Reports />;
       case 'projection': return <Projection />;
+      case 'planning': return <Planning />;
       case 'settings': return <Settings />;
       default: return <Dashboard />;
     }
@@ -172,6 +175,13 @@ function App() {
         >
           <Brain size={24} />
           <span>IA</span>
+        </button>
+        <button 
+          className={`tab-item ${activeTab === 'planning' ? 'active' : ''}`}
+          onClick={() => setActiveTab('planning')}
+        >
+          <Target size={24} />
+          <span>Metas</span>
         </button>
         <button 
           className={`tab-item ${activeTab === 'settings' ? 'active' : ''}`}
