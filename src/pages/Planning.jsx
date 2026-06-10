@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Target, PieChart, AlertCircle, ChevronRight, Edit3, Check, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getCategories, getTransactions, supabase } from '../services/api';
+import { getCategories, getTransactions } from '../services/api';
+import { supabase } from '../lib/supabase';
 
 const Planning = () => {
   const [categories, setCategories] = useState([]);
