@@ -43,22 +43,30 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
   }, [type]);
 
   const loadInitialData = async () => {
-    try {
-      const [cats, crds, ppl] = await Promise.all([
-        getCategories(),
-        getCards(),
-        getPeople()
-      ]);
-      const filteredCats = cats.filter(c => c.type === (type === 'card' ? 'expense' : type));
+    const [catsResult, crdsResult, pplResult] = await Promise.allSettled([
+      getCategories(),
+      getCards(),
+      getPeople()
+    ]);
+
+    if (catsResult.status === 'fulfilled') {
+      const filteredCats = catsResult.value.filter(c => c.type === (type === 'card' ? 'expense' : type));
       setCategories(filteredCats);
-      setCards(crds);
-      setPeople(ppl);
-      
-      if (filteredCats.length > 0) {
-        setSelectedCategory(filteredCats[0]);
-      }
-    } catch (error) {
-      console.error('Erro ao carregar dados:', error);
+      if (filteredCats.length > 0) setSelectedCategory(filteredCats[0]);
+    } else {
+      console.error('Erro ao carregar categorias:', catsResult.reason);
+    }
+
+    if (crdsResult.status === 'fulfilled') {
+      setCards(crdsResult.value);
+    } else {
+      console.error('Erro ao carregar cartões:', crdsResult.reason);
+    }
+
+    if (pplResult.status === 'fulfilled') {
+      setPeople(pplResult.value);
+    } else {
+      console.error('Erro ao carregar pessoas:', pplResult.reason);
     }
   };
 
