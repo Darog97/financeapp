@@ -67,6 +67,46 @@ export const deleteCategory = async (id) => {
   if (error) throw error;
 };
 
+// ── Subcategories ──────────────────────────────────────────────────────────
+export const getSubcategories = async () => {
+  const { data, error } = await supabase
+    .from('subcategories')
+    .select('*')
+    .order('name');
+
+  if (error) throw error;
+  return data;
+};
+
+export const getSubcategoriesByCategory = async (categoryId) => {
+  const { data, error } = await supabase
+    .from('subcategories')
+    .select('*')
+    .eq('category_id', categoryId)
+    .order('name');
+
+  if (error) throw error;
+  return data;
+};
+
+export const addSubcategory = async (subcategory) => {
+  const user = await getUser();
+  const { data, error } = await supabase
+    .from('subcategories')
+    .insert([{ ...subcategory, user_id: user.id }])
+    .select();
+  if (error) throw error;
+  return data[0];
+};
+
+export const deleteSubcategory = async (id) => {
+  const { error } = await supabase
+    .from('subcategories')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+};
+
 // ── People ─────────────────────────────────────────────────────────────────
 export const getPeople = async () => {
   const { data, error } = await supabase

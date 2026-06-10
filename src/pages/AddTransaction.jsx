@@ -15,7 +15,7 @@ import {
   User
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { addTransaction, getCategories, getCards, getPeople } from '../services/api';
+import { addTransaction, getCategories, getCards, getPeople, getSubcategoriesByCategory } from '../services/api';
 
 const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
   const [value, setValue] = useState('0');
@@ -25,9 +25,11 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
   const [dateType, setDateType] = useState('today');
   const [note, setNote] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
   const [cards, setCards] = useState([]);
   const [people, setPeople] = useState([]);
   const [isRecurring, setIsRecurring] = useState(false);
@@ -35,6 +37,7 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
   const [recurrencePeriod, setRecurrencePeriod] = useState('monthly');
   const [showAdvanceOptions, setShowAdvanceOptions] = useState(false);
   const [showPersonPicker, setShowPersonPicker] = useState(false);
+  const [showSubcategoryPicker, setShowSubcategoryPicker] = useState(false);
   const inputRef = useRef(null);
   const dateInputRef = useRef(null);
 
@@ -52,7 +55,10 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
     if (catsResult.status === 'fulfilled') {
       const filteredCats = catsResult.value.filter(c => c.type === (type === 'card' ? 'expense' : type));
       setCategories(filteredCats);
-      if (filteredCats.length > 0) setSelectedCategory(filteredCats[0]);
+      if (filteredCats.length > 0) {
+        setSelectedCategory(filteredCats[0]);
+        loadSubcategories(filteredCats[0].id);
+      }
     } else {
       console.error('Erro ao carregar categorias:', catsResult.reason);
     }
@@ -67,6 +73,17 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
       setPeople(pplResult.value);
     } else {
       console.error('Erro ao carregar pessoas:', pplResult.reason);
+    }
+  };
+
+  const loadSubcategories = async (categoryId) => {
+    try {
+      const subs = await getSubcategoriesByCategory(categoryId);
+      setSubcategories(subs);
+      setSelectedSubcategory(null);
+    } catch (error) {
+      console.error('Erro ao carregar subcategorias:', error);
+      setSubcategories([]);
     }
   };
 
@@ -253,6 +270,19 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
           </div>
           <ChevronRight size={20} color="#3a3a3c" />
         </div>
+
+        {/* Subcategoria */}
+        {subcategories.length > 0 && (
+          <div className="form-row" onClick={() => setShowSubcategoryPicker(true)} style={{ cursor: 'pointer' }}>
+            <div className="form-row-left">
+              <Bookmark size={22} color="#8e8e93" />
+              <div className="category-badge" style={{ borderColor: '#8e8e93' }}>
+                <span style={{ color: 'white' }}>{selectedSubcategory?.name || 'Subcategoria (opcional)'}</span>
+              </div>
+            </div>
+            <ChevronRight size={20} color="#3a3a3c" />
+          </div>
+        )}
 
         {/* Seleção de Cartão (SÓ aparece no modo 'card') */}
         {type === 'card' && cards.length > 0 && (
@@ -482,6 +512,7 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
                       key={cat.id}
                       onClick={() => {
                         setSelectedCategory(cat);
+                        loadSubcategories(cat.id);
                         setShowCategoryPicker(false);
                       }}
                       style={{
@@ -520,7 +551,7 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
       {/* Person Picker Sheet */}
       <AnimatePresence>
         {showPersonPicker && (
-          <motion.div 
+          <motion.div
             className="keypad-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -528,7 +559,7 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
             onClick={() => setShowPersonPicker(false)}
             style={{ zIndex: 4000 }}
           >
-            <motion.div 
+            <motion.div
               className="keypad-container"
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
@@ -564,12 +595,73 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
                       setShowPersonPicker(false);
                     }}
                     style={{
-                      padding: '16px', borderRadius: '16px', 
+                      padding: '16px', borderRadius: '16px',
                       background: selectedPerson?.id === p.id ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.02)',
                       border: '1px solid rgba(255,255,255,0.1)', color: 'white', textAlign: 'left'
                     }}
                   >
                     {p.name}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Subcategory Picker Sheet */}
+      <AnimatePresence>
+        {showSubcategoryPicker && (
+          <motion.div
+            className="keypad-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowSubcategoryPicker(false)}
+            style={{ zIndex: 4000 }}
+          >
+            <motion.div
+              className="keypad-container"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              onClick={e => e.stopPropagation()}
+              style={{ padding: '24px', maxHeight: '70vh', overflowY: 'auto' }}
+            >
+              <div className="flex-between" style={{ marginBottom: '20px' }}>
+                <h3 style={{ margin: 0, color: 'white' }}>Subcategoria</h3>
+                <button onClick={() => setShowSubcategoryPicker(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)' }}>
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <button
+                  onClick={() => {
+                    setSelectedSubcategory(null);
+                    setShowSubcategoryPicker(false);
+                  }}
+                  style={{
+                    padding: '16px', borderRadius: '16px', background: !selectedSubcategory ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.02)',
+                    border: '1px solid rgba(255,255,255,0.1)', color: 'white', textAlign: 'left'
+                  }}
+                >
+                  Nenhuma
+                </button>
+                {subcategories.map(sub => (
+                  <button
+                    key={sub.id}
+                    onClick={() => {
+                      setSelectedSubcategory(sub);
+                      setShowSubcategoryPicker(false);
+                    }}
+                    style={{
+                      padding: '16px', borderRadius: '16px',
+                      background: selectedSubcategory?.id === sub.id ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.1)', color: 'white', textAlign: 'left'
+                    }}
+                  >
+                    {sub.name}
                   </button>
                 ))}
               </div>

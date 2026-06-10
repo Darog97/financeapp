@@ -2,6 +2,7 @@ import React from 'react';
 import { Layers, Brain, CreditCard, User, LogOut, Smartphone, ShieldCheck } from 'lucide-react';
 import CreditCardManager from '../components/CreditCardManager';
 import CategoryManager from '../components/CategoryManager';
+import SubcategoryManager from '../components/SubcategoryManager';
 import PersonManager from '../components/PersonManager';
 import { supabase } from '../lib/supabase';
 
@@ -128,7 +129,15 @@ const Settings = () => {
         </div>
       )}
 
-      {activeSection === 'categories' && <CategoryManager />}
+      {activeSection === 'categories' && (
+        <>
+          <CategoryManager />
+          <div style={{ marginTop: '24px' }}>
+            <h2 className="text-secondary" style={{ fontSize: '13px', textTransform: 'uppercase', marginBottom: '16px' }}>Subcategorias</h2>
+            <SubcategoryManager />
+          </div>
+        </>
+      )}
 
       {activeSection === 'ai' && (
         <section style={{ marginBottom: '32px' }}>
