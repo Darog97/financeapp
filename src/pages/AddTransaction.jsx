@@ -112,20 +112,27 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
         // Adiciona meses para as parcelas subsequentes
         entryDate.setMonth(entryDate.getMonth() + i);
 
-        promises.push(addTransaction({
-          value: numInstallments > 1 ? numericValue / numInstallments : numericValue,
-          type: type === 'card' ? 'expense' : type,
-          category_id: selectedCategory.id,
-          person_id: selectedPerson?.id || null,
-          card_id: selectedCard?.id || null,
-          date: entryDate.toISOString().split('T')[0],
-          description: numInstallments > 1 ? `${note} (${i + 1}/${numInstallments})` : note,
-          status: isPaid ? 'completed' : 'pending',
-          is_recurring: isRecurring,
-          installments_total: numInstallments,
-          installment_number: i + 1,
-          recurrence_period: isRecurring ? recurrencePeriod : null
-        }));
+        const payload = {
+            value: numInstallments > 1 ? numericValue / numInstallments : numericValue,
+            type: type === 'card' ? 'expense' : type,
+            category_id: selectedCategory.id,
+            date: entryDate.toISOString().split('T')[0],
+            description: numInstallments > 1 ? `${note} (${i + 1}/${numInstallments})` : note,
+            status: isPaid ? 'completed' : 'pending',
+          };
+
+          // Campos opcionais — só incluir se a coluna existir no Supabase
+          if (selectedPerson?.id) payload.person_id = selectedPerson.id;
+          if (selectedCard?.id)   payload.card_id = selectedCard.id;
+          if (isRecurring)        payload.is_recurring = true;
+          if (numInstallments > 1) {
+            payload.installments_total = numInstallments;
+            payload.installment_number = i + 1;
+          }
+          if (isRecurring && recurrencePeriod) payload.recurrence_period = recurrencePeriod;
+
+          promises.push(addTransaction(payload));
+
       }
 
       await Promise.all(promises);
