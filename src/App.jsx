@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { db } from './db';
-import { 
-  LayoutDashboard, 
-  History, 
-  Plus, 
-  BarChart3, 
-  Settings as SettingsIcon,
+import {
+  LayoutDashboard,
+  Plus,
+  MoreVertical,
   ArrowUpCircle,
   ArrowDownCircle,
   CreditCard,
   Brain,
-  Target
+  Target,
+  Layers,
+  User
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -18,11 +18,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import AddTransaction from './pages/AddTransaction';
-import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import Projection from './pages/Projection';
 import Planning from './pages/Planning';
-// import Cards from './pages/Cards'; // Comentado pois o arquivo não foi encontrado
 
 import { supabase } from './lib/supabase';
 import { Auth } from './components/Auth';
@@ -30,6 +28,7 @@ import { Auth } from './components/Auth';
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showQuickMenu, setShowQuickMenu] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [addType, setAddType] = useState('expense');
   const [showAdd, setShowAdd] = useState(false);
   const [session, setSession] = useState(null);
@@ -100,21 +99,28 @@ function App() {
       </AnimatePresence>
 
       <nav className="tab-bar glass">
-        <button 
+        <button
           className={`tab-item ${activeTab === 'dashboard' ? 'active' : ''}`}
-          onClick={() => setActiveTab('dashboard')}
+          onClick={() => {
+            setActiveTab('dashboard');
+            setShowMoreMenu(false);
+          }}
         >
           <LayoutDashboard size={24} />
           <span>Principal</span>
         </button>
-        <button 
-          className={`tab-item ${activeTab === 'transactions' ? 'active' : ''}`}
-          onClick={() => setActiveTab('transactions')}
+
+        <button
+          className={`tab-item ${activeTab === 'projection' ? 'active' : ''}`}
+          onClick={() => {
+            setActiveTab('projection');
+            setShowMoreMenu(false);
+          }}
         >
-          <History size={24} />
-          <span>Histórico</span>
+          <Brain size={24} />
+          <span>IA</span>
         </button>
-        
+
         <div className="add-button-container">
           <AnimatePresence>
             {showQuickMenu && (
@@ -156,8 +162,8 @@ function App() {
             )}
           </AnimatePresence>
 
-          <button 
-            className={`add-button ${showQuickMenu ? 'open' : ''}`} 
+          <button
+            className={`add-button ${showQuickMenu ? 'open' : ''}`}
             onClick={() => setShowQuickMenu(!showQuickMenu)}
           >
             <motion.div
@@ -169,27 +175,144 @@ function App() {
           </button>
         </div>
 
-        <button 
-          className={`tab-item ${activeTab === 'projection' ? 'active' : ''}`}
-          onClick={() => setActiveTab('projection')}
-        >
-          <Brain size={24} />
-          <span>IA</span>
-        </button>
-        <button 
+        <button
           className={`tab-item ${activeTab === 'planning' ? 'active' : ''}`}
-          onClick={() => setActiveTab('planning')}
+          onClick={() => {
+            setActiveTab('planning');
+            setShowMoreMenu(false);
+          }}
         >
           <Target size={24} />
-          <span>Metas</span>
+          <span>Planejamento</span>
         </button>
-        <button 
-          className={`tab-item ${activeTab === 'settings' ? 'active' : ''}`}
-          onClick={() => setActiveTab('settings')}
-        >
-          <SettingsIcon size={24} />
-          <span>Mais</span>
-        </button>
+
+        <div style={{ position: 'relative' }}>
+          <button
+            className={`tab-item ${showMoreMenu ? 'active' : ''}`}
+            onClick={() => setShowMoreMenu(!showMoreMenu)}
+          >
+            <MoreVertical size={24} />
+            <span>Mais</span>
+          </button>
+
+          <AnimatePresence>
+            {showMoreMenu && (
+              <motion.div
+                className="more-menu"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                style={{
+                  position: 'absolute',
+                  bottom: '70px',
+                  right: 0,
+                  background: 'var(--bg-secondary)',
+                  borderRadius: '16px',
+                  border: '1px solid var(--border)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                  zIndex: 100,
+                  minWidth: '200px',
+                  overflow: 'hidden'
+                }}
+              >
+                <button
+                  className="more-menu-item"
+                  onClick={() => {
+                    setActiveTab('settings');
+                    setShowMoreMenu(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    width: '100%',
+                    padding: '14px 16px',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-primary)',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    borderBottom: '1px solid var(--border)'
+                  }}
+                >
+                  <Layers size={18} />
+                  <span>Categorias</span>
+                </button>
+
+                <button
+                  className="more-menu-item"
+                  onClick={() => {
+                    setActiveTab('settings');
+                    setShowMoreMenu(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    width: '100%',
+                    padding: '14px 16px',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-primary)',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    borderBottom: '1px solid var(--border)'
+                  }}
+                >
+                  <Brain size={18} />
+                  <span>Inteligência Artificial</span>
+                </button>
+
+                <button
+                  className="more-menu-item"
+                  onClick={() => {
+                    setActiveTab('settings');
+                    setShowMoreMenu(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    width: '100%',
+                    padding: '14px 16px',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-primary)',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    borderBottom: '1px solid var(--border)'
+                  }}
+                >
+                  <CreditCard size={18} />
+                  <span>Meus Cartões</span>
+                </button>
+
+                <button
+                  className="more-menu-item"
+                  onClick={() => {
+                    setActiveTab('settings');
+                    setShowMoreMenu(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    width: '100%',
+                    padding: '14px 16px',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-primary)',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  <User size={18} />
+                  <span>Contatos</span>
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </nav>
 
       <AnimatePresence>
