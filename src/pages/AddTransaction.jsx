@@ -455,40 +455,49 @@ const AddTransaction = ({ onClose, type: initialType = 'expense' }) => {
               </div>
               
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-                {categories.map(cat => (
-                  <button
-                    key={cat.id}
-                    onClick={() => {
-                      setSelectedCategory(cat);
-                      setShowCategoryPicker(false);
-                    }}
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '8px',
-                      padding: '16px 8px',
-                      borderRadius: '16px',
-                      background: selectedCategory?.id === cat.id ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.02)',
-                      border: selectedCategory?.id === cat.id ? `1px solid ${cat.color}` : '1px solid rgba(255,255,255,0.05)',
-                      color: 'white'
-                    }}
-                  >
-                    <div style={{ 
-                      width: '32px', 
-                      height: '32px', 
-                      borderRadius: '50%', 
-                      background: cat.color,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <Bookmark size={18} color="white" />
-                    </div>
-                    <span style={{ fontSize: '11px', textAlign: 'center' }}>{cat.name}</span>
-                  </button>
-                ))}
+                {categories.length === 0 ? (
+                  <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '32px 16px', color: '#8e8e93' }}>
+                    <div style={{ fontSize: '36px', marginBottom: '12px' }}>🏷️</div>
+                    <p style={{ margin: '0 0 4px', fontWeight: '600', color: 'white' }}>Nenhuma categoria</p>
+                    <p style={{ margin: 0, fontSize: '13px' }}>Vá em Ajustes → Categorias para cadastrar</p>
+                  </div>
+                ) : (
+                  categories.map(cat => (
+                    <button
+                      key={cat.id}
+                      onClick={() => {
+                        setSelectedCategory(cat);
+                        setShowCategoryPicker(false);
+                      }}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '16px 8px',
+                        borderRadius: '16px',
+                        background: selectedCategory?.id === cat.id ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.02)',
+                        border: selectedCategory?.id === cat.id ? `1px solid ${cat.color}` : '1px solid rgba(255,255,255,0.05)',
+                        color: 'white'
+                      }}
+                    >
+                      <div style={{ 
+                        width: '32px', 
+                        height: '32px', 
+                        borderRadius: '50%', 
+                        background: cat.color,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <Bookmark size={18} color="white" />
+                      </div>
+                      <span style={{ fontSize: '11px', textAlign: 'center' }}>{cat.name}</span>
+                    </button>
+                  ))
+                )}
               </div>
+
             </motion.div>
           </motion.div>
         )}

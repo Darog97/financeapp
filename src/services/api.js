@@ -9,11 +9,9 @@ const getUser = async () => {
 
 // ── Transactions ───────────────────────────────────────────────────────────
 export const getTransactions = async () => {
-  const user = await getUser();
   const { data, error } = await supabase
     .from('transactions')
     .select('*, categories(*), cards(*)')
-    .eq('user_id', user.id)
     .order('date', { ascending: false });
 
   if (error) throw error;
@@ -42,11 +40,9 @@ export const deleteTransaction = async (id) => {
 
 // ── Categories ─────────────────────────────────────────────────────────────
 export const getCategories = async () => {
-  const user = await getUser();
   const { data, error } = await supabase
     .from('categories')
     .select('*')
-    .eq('user_id', user.id)
     .order('name');
 
   if (error) throw error;
@@ -73,11 +69,9 @@ export const deleteCategory = async (id) => {
 
 // ── People ─────────────────────────────────────────────────────────────────
 export const getPeople = async () => {
-  const user = await getUser();
   const { data, error } = await supabase
     .from('people')
     .select('*')
-    .eq('user_id', user.id)
     .order('name');
   if (error) throw error;
   return data;
@@ -103,11 +97,9 @@ export const deletePerson = async (id) => {
 
 // ── Cards ──────────────────────────────────────────────────────────────────
 export const getCards = async () => {
-  const user = await getUser();
   const { data, error } = await supabase
     .from('cards')
     .select('*')
-    .eq('user_id', user.id)
     .order('name');
 
   if (error) throw error;
